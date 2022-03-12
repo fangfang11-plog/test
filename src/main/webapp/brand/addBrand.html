@@ -1,0 +1,83 @@
+<!--<%&#45;&#45;-->
+<!--  Created by IntelliJ IDEA.-->
+<!--  User: 12291-->
+<!--  Date: 2022/3/6-->
+<!--  Time: 9:27-->
+<!--  To change this template use File | Settings | File Templates.-->
+<!--&#45;&#45;%>-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="app">
+<h3>添加品牌</h3>
+<form action="/addBrandServlet" method="post">
+    品牌名称：<input id="brandName" v-model="brand.brandName"><br>
+    企业名称：<input id="companyName" v-model="brand.companyName"><br>
+    排序：   <input  id="ordered" v-model="brand.ordered"><br>
+    描述信息：<textarea rows="5" cols="20" id="description" v-model="brand.description"></textarea><br>
+    状态：<input type="radio" name="status" value="0" v-model="brand.status">禁用
+         <input type="radio" name="status" value="1" v-model="brand.status">启用<br>
+    <input type="button" id="btn" value="提交" @click="submitForm()">
+</form>
+</div>
+<script src="../js/axios-0.18.0.js"></script>
+<script src="../js/vue.js"></script>
+<script>
+    new Vue({
+        el:"#app",
+        data() {
+            return {
+                brand:{}
+            }
+        },
+        methods:{
+            submitForm(){
+                var _this = this;
+                axios({
+                    method:"post",
+                    url:"http://localhost/addBrandServlet",
+                    data:brand = _this.brand
+                }).then(function (resp) {
+                    if (resp.data == "success") {
+                        location.href = "http://localhost/brand/brand.html"
+                    }
+                })
+            }
+        }
+    })
+    // function submitForm() {
+    //     var formData = {
+    //         brandName:"",
+    //         companyName:"",
+    //         ordered:"",
+    //         description:"",
+    //         status:"",
+    //     };
+    //     formData.brandName = document.getElementById("brandName").value;
+    //     formData.companyName = document.getElementById("companyName").value;
+    //     formData.ordered = document.getElementById("ordered").value;
+    //     formData.description = document.getElementById("description").value;
+    //     let status = document.getElementsByName("status");
+    //     for (let i = 0; i < status.length; i++) {
+    //         if (status[i].checked) {
+    //             formData.status = status[i].value;
+    //         }
+    //     }
+    //     axios({
+    //         method:"post",
+    //         url:"http://localhost/addBrandServlet",
+    //         data:formData
+    //     }).then(function (resp) {
+    //         if (resp.data == "success") {
+    //             location.href = "http://localhost/brand/brand.html";
+    //         }
+    //     })
+    // }
+</script>
+
+</body>
+</html>

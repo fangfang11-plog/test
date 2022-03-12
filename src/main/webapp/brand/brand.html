@@ -1,0 +1,287 @@
+<!--<%&#45;&#45;-->
+<!--  Created by IntelliJ IDEA.-->
+<!--  User: 12291-->
+<!--  Date: 2022/3/5-->
+<!--  Time: 11:15-->
+<!--  To change this template use File | Settings | File Templates.-->
+<!--&#45;&#45;%>-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .el-table .warning-row {
+            background: oldlace;
+        }
+
+        .el-table .success-row {
+            background: #f0f9eb;
+        }
+    </style>
+</head>
+<body>
+
+<h1 id="username">欢迎</h1>
+<div id="app">
+<!--    //搜索表单-->
+    <el-form :inline="true" :model="brand" class="demo-form-inline">
+        <el-form-item label="当前状态">
+            <el-select v-model:id="brand.status">
+                <el-option label="启用" value="1"></el-option>
+                <el-option label="禁用" value="0"></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="企业名称">
+            <el-input v-model="brand.companyName" placeholder="企业名称"></el-input>
+        </el-form-item>
+        <el-form-item label="品牌名称">
+            <el-input v-model="brand.brandName" placeholder="品牌名称"></el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="onSubmit">查询</el-button>
+        </el-form-item>
+    </el-form>
+<!--    按钮-->
+    <el-row>
+        <el-button type="primary"  @click="dialogVisible = true" plain>新增</el-button>
+        <el-button type="danger" plain @click="deleteByIds">批量删除</el-button>
+    </el-row>
+<!--    添加数据对话框-->
+    <el-dialog
+            title="编辑数据"
+            :visible.sync="dialogVisible"
+            width="30%">
+        <el-form ref="form" :model="brand" label-width="80px">
+            <el-form-item label="品牌名称">
+                <el-input v-model="brand.brandName"></el-input>
+            </el-form-item>
+            <el-form-item label="企业名称">
+                <el-input v-model="brand.companyName"></el-input>
+            </el-form-item>
+            <el-form-item label="排序">
+                <el-input v-model="brand.ordered"></el-input>
+            </el-form-item>
+            <el-form-item label="描述">
+                <el-input v-model="brand.description"></el-input>
+            </el-form-item>
+            <el-form-item label="状态">
+                <el-switch v-model="brand.status"
+                           active-value="1"
+                           inactive-value="0"
+                ></el-switch>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="addBrand">立即创建</el-button>
+                <el-button @click="dialogVisible = false">取消</el-button>
+            </el-form-item>
+        </el-form>
+    </el-dialog>
+<!--    //展示表格-->
+    <template>
+        <el-table
+                :data="brands"
+                style="width: 100%"
+                :row-class-name="tableRowClassName"
+                @selection-change="handleSelectionChange">
+            <el-table-column
+                    type="selection"
+                    width="55">
+            </el-table-column>
+            <el-table-column
+                    type="index"
+                    :index="indexMethod">
+            </el-table-column>
+            <el-table-column
+                    prop="brandName"
+                    label="品牌名称"
+                    align="center">
+            </el-table-column>
+            <el-table-column
+                    prop="companyName"
+                    label="公司名称"
+                    align="center">
+            </el-table-column>
+            <el-table-column
+                    prop="ordered"
+                    align="center"
+                    label="排序">
+            </el-table-column>
+            <el-table-column
+                    prop="statusStr"
+                    align="center"
+                    label="当前状态">
+            </el-table-column>
+            <el-table-column
+                    align="center"
+                    label="操作">
+                <el-button type="primary">主要按钮</el-button>
+                <el-button type="danger">危险按钮</el-button>
+            </el-table-column>
+        </el-table>
+    </template>
+    <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[5, 10, 15, 20]"
+            :page-size="5"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="totalCount">
+    </el-pagination>
+</div>
+<!--导入配置文件-->
+<script src="../js/vue.js"></script>
+<script src="../js/axios-0.18.0.js"></script>
+<script src="../element-ui/lib/index.js"></script>
+<link rel="stylesheet" href="../element-ui/lib/theme-chalk/index.css">
+
+
+<!--载入表单-->
+<script>
+    new Vue({
+        el:"#app",
+        data() {
+            return {
+                //复选框选中数据集合
+                multipleSelection:[],
+                brands:[],
+                //搜索表单数据
+                brand: {
+                    id:"",
+                    status:"",
+                    companyName:"",
+                    brandName:"",
+                    description:"",
+                    ordered:""
+                },
+                //对话框模型
+                dialogVisible: false,
+                //分页工具条
+                currentPage: 1,
+                pageSize:5,
+                selectedIds:[],
+                totalCount:100
+            };
+        },
+        methods: {
+            //绘制
+            tableRowClassName({row, rowIndex}) {
+                if (rowIndex === 1) {
+                    return 'warning-row';
+                } else if (rowIndex === 3) {
+                    return 'success-row';
+                }
+                return '';
+            },
+            //查询所有
+            selectAll() {
+                var _this = this;
+                axios({
+                    method: "get",
+                    url: "http://localhost/brandServlet/selectAll",
+                }).then(function (resp) {
+                    _this.brands = resp.data;
+                    _this.totalCount = resp.data.totalCount;
+                })
+            },
+            selectByPage() {
+                var _this = this;
+                axios({
+                    method: "get",
+                    url: "http://localhost/brandServlet/selectByPage?currentPage=" + _this.currentPage + "&" + "pageSize=" + _this.pageSize,
+                }).then(function (resp) {
+                    _this.brands = resp.data.row;
+                    _this.totalCount = resp.data.totalCount;
+                })
+            },
+            selectByPageAndCondition() {
+                axios({
+                    method: "post",
+                    url: "http://localhost/brandServlet/selectByPageAndCondition?currentPage=" + _this.currentPage + "&" + "pageSize=" + _this.pageSize,
+                    data: this.brand
+                }).then(resp =>{
+                    this.brands = resp.data.row;
+                    console.log(resp.data);
+                    this.totalCount = resp.data.totalCount;
+                })
+            },
+            //顺序
+            indexMethod(index) {
+                return index + 1;
+            },
+
+            handleSelectionChange(val) {
+                this.multipleSelection = val;
+            },
+            onSubmit() {
+                this.selectByPageAndCondition();
+            },
+            //添加品牌
+            addBrand() {
+                var _this = this;
+                axios({
+                    method:"post",
+                    url:"http://localhost/brandServlet/add",
+                    data:brand = _this.brand
+                }).then(function (resp) {
+                    if (resp.data == "success") {
+                        _this.dialogVisible = false;
+                        this.selectByPageAndCondition();
+                        _this.$message({
+                            message: '恭喜你，添加成功',
+                            type: 'success'
+                        });
+                    }
+                })
+            },
+            //确认提示框
+            deleteByIds() {
+                for (let i = 0; i < this.multipleSelection.length; i++){
+                    this.selectedIds[i] = this.multipleSelection[i].id;
+                }
+                this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    var _this = this;
+                    axios({
+                        method:"post",
+                        url:"http://localhost/brandServlet/deleteByIds",
+                        data:_this.selectedIds
+                    }).then(function (resp) {
+                        if (resp.data == "success") {
+                            _this.selectAll();
+                            _this.$message({
+                                message: '恭喜你，删除成功',
+                                type: 'success'
+                            });
+                        }
+                    })
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            },
+            handleSizeChange(val) {
+                this.pageSize = val;
+                this.selectByPageAndCondition();
+            },
+            handleCurrentChange(val) {
+                this.currentPage = val;
+                this.selectByPageAndCondition();
+            }
+        },
+        //加载完成时
+        mounted(){
+            this.selectByPageAndCondition();
+        }
+    });
+
+
+</script>
+</body>
+</html>

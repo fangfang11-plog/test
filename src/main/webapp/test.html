@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="app">
+    <a v-bind:href="url">点击跳转</a>
+<!--<input type="button" value="点击跳转">-->
+    <input v-model="url">
+    <input type="button" value="点击" @click="show()">
+    <div v-if="count == 1">1</div>
+    <div v-else-if="count == 2">2</div>
+    <div v-else>3</div>
+    <div v-show="count == 3">div-show</div>
+    <br>
+    <input v-model="count">fd
+    <div v-for="addr in addrs">
+        {{addr}}<br>G
+    </div>
+    <div v-for="(addr,i) in addrs">
+        {{i+1}}--{{addr}}
+    </div>
+</div>
+
+<script src="./js/vue.js"></script>
+<script>
+    new Vue({
+        el:"#app",
+        data() {
+            return {
+                username:"sdaaw",
+                url:"https://hao.qq.com/?unc=Af31026&s=o400493_1",
+                count:3,
+                addrs:["北京","上海","西安"]
+            }
+        },
+        methods:{
+            show() {
+                alert("我被点了")
+            }
+        }
+
+    });
+</script>
+</body>
+</html>
